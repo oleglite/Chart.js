@@ -965,50 +965,34 @@ window.Chart = function(context, options){
 				ctx.fill();
 
 				if(data[i].label && scaleAnimation*pieRadius*2*segmentAngle/(2*Math.PI) > config.labelFontSize) {
-					function getPieLabelX(align, r) {
+					function getAlignOffsetX(align) {
 						switch(align) {
-							case 'left':
-								return -r+20;
-								break;
-							case 'center':
-								return -r/2;
-								break;
+                            case 'left':
+								return 0.4;
+							case 'right':
+								return 1.4;
 						}
-						return -10;
+						return 1;
 					}
-					
-					function reversePieLabelAlign(align) {
-						switch(align) {
-							case 'left': return 'right'; break;
-							case 'right': return 'left'; break;
-							case 'center': return align; break;
-						}
-					}
-					
-					var fontSize = data[i].labelFontSize || config.labelFontSize+'px';
-					
-					if(fontSize.match(/^[0-9]+$/g) != null) {
-						fontSize = fontSize+'px';
-					}
-					ctx.font = config.labelFontStyle+ " " +fontSize+" " + config.labelFontFamily;
-					ctx.fillStyle = getFadeColor(animationDecimal, data[i].labelColor || 'black', data[i].color);
-					ctx.textBaseline = 'middle';
-					// rotate text, so it perfectly fits in segments
-					var textRotation = -(cumulativeAngle + segmentAngle)+segmentAngle/2,
-						tX = width/2+scaleAnimation*pieRadius*Math.cos(textRotation),
-						tY = height/2-scaleAnimation*pieRadius*Math.sin(textRotation);
-					ctx.textAlign = data[i].labelAlign || config.labelAlign;
-					textX = getPieLabelX(ctx.textAlign, scaleAnimation*pieRadius);
-					if(textRotation < -Math.PI/2) {
-						textRotation -= Math.PI;
-						ctx.textAlign = reversePieLabelAlign(ctx.textAlign);
-						textX = -textX;
-					}
-					ctx.translate(tX, tY);
-					ctx.rotate(-textRotation);
-					ctx.fillText(data[i].label, textX, 0);
-					ctx.rotate(textRotation);
-					ctx.translate(-tX, -tY);
+
+                    var fontSize = data[i].labelFontSize || config.labelFontSize + 'px';
+
+                    if (fontSize.match(/^[0-9]+$/g) != null) {
+                        fontSize = fontSize + 'px';
+                    }
+                    ctx.font = config.labelFontStyle + " " + fontSize + " " + config.labelFontFamily;
+                    ctx.fillStyle = getFadeColor(animationDecimal, data[i].labelColor || 'black', data[i].color);
+                    ctx.textBaseline = 'middle';
+                    ctx.textAlign = 'center';
+
+                    var labelAlign = data[i].labelAlign || config.labelAlign;
+                    var alignOffset = getAlignOffsetX(labelAlign) / 2;
+                    var textRotation = -(cumulativeAngle + segmentAngle) + segmentAngle / 2;
+
+                    var textX = width / 2 + scaleAnimation * pieRadius * Math.cos(textRotation) * alignOffset,
+                        textY = height / 2 - scaleAnimation * pieRadius * Math.sin(textRotation) * alignOffset;
+
+                    ctx.fillText(data[i].label, textX, textY);
 				}
 				
 				if(animationDecimal >= 1 && config.showTooltips) {
